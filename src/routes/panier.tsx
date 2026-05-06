@@ -24,18 +24,23 @@ function CartPage() {
         <div className="mt-8 grid lg:grid-cols-3 gap-8">
           <ul className="lg:col-span-2 space-y-4">
             {items.map((i) => (
-              <li key={i.productId} className="flex gap-4 p-4 rounded-xl border border-border bg-card">
+              <li key={i.key} className="flex gap-4 p-4 rounded-xl border border-border bg-card">
                 <img src={resolveImage(i.image)} alt={i.name} className="h-24 w-20 rounded-md object-cover" />
                 <div className="flex-1">
                   <h3 className="font-display text-lg">{i.name}</h3>
-                  <p className="text-primary font-semibold text-sm">{formatXOF(i.price)}</p>
+                  {i.variant && (
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      {Object.entries(i.variant).map(([k, v]) => `${k}: ${v}`).join(" · ")}
+                    </p>
+                  )}
+                  <p className="text-primary font-semibold text-sm mt-1">{formatXOF(i.price)}</p>
                   <div className="mt-3 inline-flex items-center border border-border rounded-md">
-                    <button className="h-8 w-8 flex items-center justify-center hover:bg-accent" onClick={() => cart.setQty(i.productId, i.quantity - 1)}><Minus className="h-3 w-3" /></button>
+                    <button className="h-8 w-8 flex items-center justify-center hover:bg-accent" onClick={() => cart.setQty(i.key, i.quantity - 1)}><Minus className="h-3 w-3" /></button>
                     <span className="w-8 text-center text-sm">{i.quantity}</span>
-                    <button className="h-8 w-8 flex items-center justify-center hover:bg-accent" onClick={() => cart.setQty(i.productId, i.quantity + 1)}><Plus className="h-3 w-3" /></button>
+                    <button className="h-8 w-8 flex items-center justify-center hover:bg-accent" onClick={() => cart.setQty(i.key, i.quantity + 1)}><Plus className="h-3 w-3" /></button>
                   </div>
                 </div>
-                <button onClick={() => cart.remove(i.productId)} className="text-muted-foreground hover:text-destructive self-start">
+                <button onClick={() => cart.remove(i.key)} className="text-muted-foreground hover:text-destructive self-start">
                   <Trash2 className="h-4 w-4" />
                 </button>
               </li>

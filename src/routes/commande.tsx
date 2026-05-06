@@ -58,7 +58,9 @@ function CheckoutPage() {
         items.map(i => ({
           order_id: order.id,
           product_id: i.productId,
-          product_name: i.name,
+          product_name: i.variant
+            ? `${i.name} (${Object.entries(i.variant).map(([k,v])=>`${k}: ${v}`).join(", ")})`
+            : i.name,
           unit_price_xof: i.price,
           quantity: i.quantity,
         }))
@@ -122,9 +124,13 @@ function CheckoutPage() {
         <aside className="rounded-xl border border-border bg-card p-6 h-fit shadow-soft">
           <h2 className="font-display text-xl">Votre commande</h2>
           <ul className="mt-4 space-y-2 text-sm">
-            {items.map(i => (
-              <li key={i.productId} className="flex justify-between gap-2">
-                <span className="text-muted-foreground">{i.name} × {i.quantity}</span>
+          {items.map(i => (
+              <li key={i.key} className="flex justify-between gap-2">
+                <span className="text-muted-foreground">
+                  {i.name}
+                  {i.variant && <span className="block text-xs">{Object.entries(i.variant).map(([k,v])=>`${k}: ${v}`).join(" · ")}</span>}
+                  × {i.quantity}
+                </span>
                 <span>{formatXOF(i.price * i.quantity)}</span>
               </li>
             ))}
