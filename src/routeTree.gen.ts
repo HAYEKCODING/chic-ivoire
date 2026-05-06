@@ -9,38 +9,120 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as PanierRouteImport } from './routes/panier'
+import { Route as CommandeRouteImport } from './routes/commande'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ProduitSlugRouteImport } from './routes/produit.$slug'
+import { Route as CategorieSlugRouteImport } from './routes/categorie.$slug'
+import { Route as CommandeConfirmationIdRouteImport } from './routes/commande.confirmation.$id'
 
+const PanierRoute = PanierRouteImport.update({
+  id: '/panier',
+  path: '/panier',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CommandeRoute = CommandeRouteImport.update({
+  id: '/commande',
+  path: '/commande',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ProduitSlugRoute = ProduitSlugRouteImport.update({
+  id: '/produit/$slug',
+  path: '/produit/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CategorieSlugRoute = CategorieSlugRouteImport.update({
+  id: '/categorie/$slug',
+  path: '/categorie/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CommandeConfirmationIdRoute = CommandeConfirmationIdRouteImport.update({
+  id: '/confirmation/$id',
+  path: '/confirmation/$id',
+  getParentRoute: () => CommandeRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/commande': typeof CommandeRouteWithChildren
+  '/panier': typeof PanierRoute
+  '/categorie/$slug': typeof CategorieSlugRoute
+  '/produit/$slug': typeof ProduitSlugRoute
+  '/commande/confirmation/$id': typeof CommandeConfirmationIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/commande': typeof CommandeRouteWithChildren
+  '/panier': typeof PanierRoute
+  '/categorie/$slug': typeof CategorieSlugRoute
+  '/produit/$slug': typeof ProduitSlugRoute
+  '/commande/confirmation/$id': typeof CommandeConfirmationIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/commande': typeof CommandeRouteWithChildren
+  '/panier': typeof PanierRoute
+  '/categorie/$slug': typeof CategorieSlugRoute
+  '/produit/$slug': typeof ProduitSlugRoute
+  '/commande/confirmation/$id': typeof CommandeConfirmationIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/commande'
+    | '/panier'
+    | '/categorie/$slug'
+    | '/produit/$slug'
+    | '/commande/confirmation/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/commande'
+    | '/panier'
+    | '/categorie/$slug'
+    | '/produit/$slug'
+    | '/commande/confirmation/$id'
+  id:
+    | '__root__'
+    | '/'
+    | '/commande'
+    | '/panier'
+    | '/categorie/$slug'
+    | '/produit/$slug'
+    | '/commande/confirmation/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  CommandeRoute: typeof CommandeRouteWithChildren
+  PanierRoute: typeof PanierRoute
+  CategorieSlugRoute: typeof CategorieSlugRoute
+  ProduitSlugRoute: typeof ProduitSlugRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/panier': {
+      id: '/panier'
+      path: '/panier'
+      fullPath: '/panier'
+      preLoaderRoute: typeof PanierRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/commande': {
+      id: '/commande'
+      path: '/commande'
+      fullPath: '/commande'
+      preLoaderRoute: typeof CommandeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,12 +130,59 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/produit/$slug': {
+      id: '/produit/$slug'
+      path: '/produit/$slug'
+      fullPath: '/produit/$slug'
+      preLoaderRoute: typeof ProduitSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/categorie/$slug': {
+      id: '/categorie/$slug'
+      path: '/categorie/$slug'
+      fullPath: '/categorie/$slug'
+      preLoaderRoute: typeof CategorieSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/commande/confirmation/$id': {
+      id: '/commande/confirmation/$id'
+      path: '/confirmation/$id'
+      fullPath: '/commande/confirmation/$id'
+      preLoaderRoute: typeof CommandeConfirmationIdRouteImport
+      parentRoute: typeof CommandeRoute
+    }
   }
 }
 
+interface CommandeRouteChildren {
+  CommandeConfirmationIdRoute: typeof CommandeConfirmationIdRoute
+}
+
+const CommandeRouteChildren: CommandeRouteChildren = {
+  CommandeConfirmationIdRoute: CommandeConfirmationIdRoute,
+}
+
+const CommandeRouteWithChildren = CommandeRoute._addFileChildren(
+  CommandeRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  CommandeRoute: CommandeRouteWithChildren,
+  PanierRoute: PanierRoute,
+  CategorieSlugRoute: CategorieSlugRoute,
+  ProduitSlugRoute: ProduitSlugRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
