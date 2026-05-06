@@ -136,10 +136,12 @@ export type Database = {
           featured: boolean
           id: string
           image_url: string | null
+          images: string[]
           name: string
           price_xof: number
           slug: string
           stock: number
+          variants: Json
         }
         Insert: {
           category_id?: string | null
@@ -148,10 +150,12 @@ export type Database = {
           featured?: boolean
           id?: string
           image_url?: string | null
+          images?: string[]
           name: string
           price_xof: number
           slug: string
           stock?: number
+          variants?: Json
         }
         Update: {
           category_id?: string | null
@@ -160,10 +164,12 @@ export type Database = {
           featured?: boolean
           id?: string
           image_url?: string | null
+          images?: string[]
           name?: string
           price_xof?: number
           slug?: string
           stock?: number
+          variants?: Json
         }
         Relationships: [
           {
