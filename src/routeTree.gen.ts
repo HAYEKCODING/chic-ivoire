@@ -12,8 +12,10 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as PanierRouteImport } from './routes/panier'
 import { Route as CommandeRouteImport } from './routes/commande'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as ProduitSlugRouteImport } from './routes/produit.$slug'
 import { Route as CategorieSlugRouteImport } from './routes/categorie.$slug'
+import { Route as AdminLoginRouteImport } from './routes/admin.login'
 import { Route as CommandeConfirmationIdRouteImport } from './routes/commande.confirmation.$id'
 
 const PanierRoute = PanierRouteImport.update({
@@ -31,6 +33,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminIndexRoute = AdminIndexRouteImport.update({
+  id: '/admin/',
+  path: '/admin/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ProduitSlugRoute = ProduitSlugRouteImport.update({
   id: '/produit/$slug',
   path: '/produit/$slug',
@@ -39,6 +46,11 @@ const ProduitSlugRoute = ProduitSlugRouteImport.update({
 const CategorieSlugRoute = CategorieSlugRouteImport.update({
   id: '/categorie/$slug',
   path: '/categorie/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminLoginRoute = AdminLoginRouteImport.update({
+  id: '/admin/login',
+  path: '/admin/login',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CommandeConfirmationIdRoute = CommandeConfirmationIdRouteImport.update({
@@ -51,16 +63,20 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/commande': typeof CommandeRouteWithChildren
   '/panier': typeof PanierRoute
+  '/admin/login': typeof AdminLoginRoute
   '/categorie/$slug': typeof CategorieSlugRoute
   '/produit/$slug': typeof ProduitSlugRoute
+  '/admin/': typeof AdminIndexRoute
   '/commande/confirmation/$id': typeof CommandeConfirmationIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/commande': typeof CommandeRouteWithChildren
   '/panier': typeof PanierRoute
+  '/admin/login': typeof AdminLoginRoute
   '/categorie/$slug': typeof CategorieSlugRoute
   '/produit/$slug': typeof ProduitSlugRoute
+  '/admin': typeof AdminIndexRoute
   '/commande/confirmation/$id': typeof CommandeConfirmationIdRoute
 }
 export interface FileRoutesById {
@@ -68,8 +84,10 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/commande': typeof CommandeRouteWithChildren
   '/panier': typeof PanierRoute
+  '/admin/login': typeof AdminLoginRoute
   '/categorie/$slug': typeof CategorieSlugRoute
   '/produit/$slug': typeof ProduitSlugRoute
+  '/admin/': typeof AdminIndexRoute
   '/commande/confirmation/$id': typeof CommandeConfirmationIdRoute
 }
 export interface FileRouteTypes {
@@ -78,24 +96,30 @@ export interface FileRouteTypes {
     | '/'
     | '/commande'
     | '/panier'
+    | '/admin/login'
     | '/categorie/$slug'
     | '/produit/$slug'
+    | '/admin/'
     | '/commande/confirmation/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/commande'
     | '/panier'
+    | '/admin/login'
     | '/categorie/$slug'
     | '/produit/$slug'
+    | '/admin'
     | '/commande/confirmation/$id'
   id:
     | '__root__'
     | '/'
     | '/commande'
     | '/panier'
+    | '/admin/login'
     | '/categorie/$slug'
     | '/produit/$slug'
+    | '/admin/'
     | '/commande/confirmation/$id'
   fileRoutesById: FileRoutesById
 }
@@ -103,8 +127,10 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   CommandeRoute: typeof CommandeRouteWithChildren
   PanierRoute: typeof PanierRoute
+  AdminLoginRoute: typeof AdminLoginRoute
   CategorieSlugRoute: typeof CategorieSlugRoute
   ProduitSlugRoute: typeof ProduitSlugRoute
+  AdminIndexRoute: typeof AdminIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -130,6 +156,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/': {
+      id: '/admin/'
+      path: '/admin'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AdminIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/produit/$slug': {
       id: '/produit/$slug'
       path: '/produit/$slug'
@@ -142,6 +175,13 @@ declare module '@tanstack/react-router' {
       path: '/categorie/$slug'
       fullPath: '/categorie/$slug'
       preLoaderRoute: typeof CategorieSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/login': {
+      id: '/admin/login'
+      path: '/admin/login'
+      fullPath: '/admin/login'
+      preLoaderRoute: typeof AdminLoginRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/commande/confirmation/$id': {
@@ -170,8 +210,10 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CommandeRoute: CommandeRouteWithChildren,
   PanierRoute: PanierRoute,
+  AdminLoginRoute: AdminLoginRoute,
   CategorieSlugRoute: CategorieSlugRoute,
   ProduitSlugRoute: ProduitSlugRoute,
+  AdminIndexRoute: AdminIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
