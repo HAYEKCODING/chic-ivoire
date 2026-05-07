@@ -17,7 +17,7 @@ export function ProductCard({ p }: { p: ProductCardData }) {
       params={{ slug: p.slug }}
       className="group block"
     >
-      <div className="aspect-[4/5] overflow-hidden rounded-lg bg-muted shadow-soft">
+      <div className="aspect-[4/5] overflow-hidden rounded-lg bg-primary/5 ring-1 ring-primary/20 shadow-soft">
         <img
           src={resolveImage(p.image_url)}
           alt={p.name}
@@ -28,7 +28,7 @@ export function ProductCard({ p }: { p: ProductCardData }) {
         />
       </div>
       <div className="mt-3">
-        <h3 className="font-display text-lg leading-tight">{p.name}</h3>
+        <h3 className="font-display text-lg leading-tight text-primary">{p.name}</h3>
         <p className="text-sm text-primary font-semibold mt-1">{formatXOF(p.price_xof)}</p>
       </div>
     </Link>
