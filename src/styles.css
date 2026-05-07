@@ -45,9 +45,9 @@
   --popover: oklch(0.995 0.005 80);
   --popover-foreground: oklch(0.22 0.04 40);
 
-  /* Deep terracotta */
-  --primary: oklch(0.52 0.14 38);
-  --primary-foreground: oklch(0.98 0.01 80);
+  /* Deep fuchsia pink */
+  --primary: oklch(0.45 0.22 350);
+  --primary-foreground: oklch(0.98 0.01 340);
 
   --secondary: oklch(0.93 0.02 70);
   --secondary-foreground: oklch(0.25 0.04 40);
@@ -63,7 +63,7 @@
 
   --border: oklch(0.88 0.02 70);
   --input: oklch(0.9 0.02 70);
-  --ring: oklch(0.52 0.14 38);
+  --ring: oklch(0.45 0.22 350);
 
   /* Warm gold */
   --gold: oklch(0.74 0.12 80);
