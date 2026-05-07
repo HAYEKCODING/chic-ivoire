@@ -23,7 +23,7 @@ export function Header() {
         <div className="flex items-center justify-between h-16">
           <Link to="/" className="flex items-center gap-2">
             <span className="font-display text-xl sm:text-2xl tracking-tight text-primary">
-              Élégance <span className="text-gold">CI</span>
+              KGF <span className="text-gold">BOUTIQUE</span>
             </span>
           </Link>
           <nav className="hidden md:flex items-center gap-7">

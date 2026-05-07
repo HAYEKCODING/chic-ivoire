@@ -16,7 +16,7 @@ export const Route = createFileRoute("/categorie/$slug")({
   component: CategoryPage,
   head: ({ params }) => ({
     meta: [
-      { title: `${NAMES[params.slug] ?? "Catégorie"} — Élégance CI` },
+      { title: `${NAMES[params.slug] ?? "Catégorie"} — KGF BOUTIQUE` },
       { name: "description", content: `Découvrez notre sélection ${NAMES[params.slug] ?? ""} pour femme en Côte d'Ivoire.` },
     ],
   }),

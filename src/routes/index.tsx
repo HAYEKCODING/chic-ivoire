@@ -121,7 +121,7 @@ function Index() {
           <span className="text-xs uppercase tracking-[0.25em] text-gold font-semibold">Notre histoire</span>
           <h2 className="font-display text-3xl sm:text-4xl mt-3">Une boutique, une passion.</h2>
           <p className="mt-5 text-muted-foreground leading-relaxed">
-            Élégance CI célèbre la beauté et la sophistication des femmes ivoiriennes. Chaque pièce est sélectionnée avec soin auprès d'artisans locaux et de créateurs talentueux pour vous offrir le meilleur de la mode africaine contemporaine.
+            KGF BOUTIQUE célèbre la beauté et la sophistication des femmes ivoiriennes. Chaque pièce est sélectionnée avec soin auprès d'artisans locaux et de créateurs talentueux pour vous offrir le meilleur de la mode africaine contemporaine.
           </p>
         </div>
       </section>
