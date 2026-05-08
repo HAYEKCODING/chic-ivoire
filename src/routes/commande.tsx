@@ -125,7 +125,7 @@ function CheckoutPage() {
         p_whatsapp: result.data.whatsapp,
         p_address: result.data.address,
         p_city: result.data.city,
-        p_notes: result.data.notes ?? null,
+        p_notes: result.data.notes ?? "",
         p_total_xof: total,
         p_items: items.map((i) => ({
           product_id: i.productId,
