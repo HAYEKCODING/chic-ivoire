@@ -1,5 +1,6 @@
 // Notification WhatsApp à la vendeuse après chaque commande
 const SELLER_WHATSAPP = "2250711598503";
+const STORAGE_KEY = "kgf-pending-whatsapp";
 
 export interface OrderNotifData {
   order_number: number;
@@ -13,7 +14,7 @@ export interface OrderNotifData {
   items: { product_name: string; quantity: number; unit_price_xof: number }[];
 }
 
-export function notifySellerWhatsApp(order: OrderNotifData) {
+export function buildSellerWhatsAppUrl(order: OrderNotifData): string {
   const lines = [
     `🛍️ *NOUVELLE COMMANDE — KGF BOUTIQUE*`,
     `📋 Commande n°*${order.order_number}*`,
@@ -23,6 +24,7 @@ export function notifySellerWhatsApp(order: OrderNotifData) {
     `💬 *WhatsApp :* ${order.whatsapp}`,
     `📍 *Adresse :* ${order.address}`,
     `🏘️ *Commune :* ${order.city}`,
+    ...(order.notes ? [`📝 *Notes :* ${order.notes}`] : []),
     ``,
     `🛒 *Articles commandés :*`,
     ...order.items.map(
@@ -33,13 +35,38 @@ export function notifySellerWhatsApp(order: OrderNotifData) {
     `💰 *TOTAL : ${new Intl.NumberFormat("fr-FR").format(order.total_xof)} FCFA*`,
     `💳 *Paiement :* À la livraison (espèces)`,
     ``,
-    `⏰ Commande reçue le ${new Date().toLocaleString("fr-FR")}`,
+    `⏰ Commande passée le ${new Date().toLocaleString("fr-FR")}`,
   ];
-
   const text = encodeURIComponent(lines.join("\n"));
-  const url = `https://wa.me/${SELLER_WHATSAPP}?text=${text}`;
-  // Ouvre dans un nouvel onglet — la vendeuse voit le message pré-rempli
-  if (typeof window !== "undefined") {
-    window.open(url, "_blank", "noopener,noreferrer");
+  return `https://wa.me/${SELLER_WHATSAPP}?text=${text}`;
+}
+
+// Stocke l'URL pour la page de confirmation (clic utilisateur = pas de blocage)
+export function notifySellerWhatsApp(order: OrderNotifData) {
+  if (typeof window === "undefined") return;
+  const url = buildSellerWhatsAppUrl(order);
+  try {
+    sessionStorage.setItem(STORAGE_KEY, url);
+  } catch {
+    // ignore
+  }
+}
+
+export function consumePendingWhatsAppUrl(): string | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const url = sessionStorage.getItem(STORAGE_KEY);
+    return url;
+  } catch {
+    return null;
+  }
+}
+
+export function clearPendingWhatsAppUrl() {
+  if (typeof window === "undefined") return;
+  try {
+    sessionStorage.removeItem(STORAGE_KEY);
+  } catch {
+    // ignore
   }
 }
