@@ -118,18 +118,16 @@ function CheckoutPage() {
     setErrors({});
     setLoading(true);
     try {
-      // 1. Créer la commande
-      const { data: order, error } = await supabase
-        .from("orders")
-        .insert({ ...result.data, total_xof: total })
-        .select("id, order_number")
-        .single();
-      if (error || !order) throw error ?? new Error("Erreur lors de la création de la commande");
-
-      // 2. Ajouter les articles
-      const { error: itemsError } = await supabase.from("order_items").insert(
-        items.map((i) => ({
-          order_id: order.id,
+      // Créer la commande + articles via la fonction sécurisée
+      const { data: orderRows, error } = await supabase.rpc("create_order", {
+        p_customer_name: result.data.customer_name,
+        p_phone: result.data.phone,
+        p_whatsapp: result.data.whatsapp,
+        p_address: result.data.address,
+        p_city: result.data.city,
+        p_notes: result.data.notes ?? null,
+        p_total_xof: total,
+        p_items: items.map((i) => ({
           product_id: i.productId,
           product_name: i.variant
             ? `${i.name} (${Object.entries(i.variant)
@@ -138,9 +136,11 @@ function CheckoutPage() {
             : i.name,
           unit_price_xof: i.price,
           quantity: i.quantity,
-        }))
-      );
-      if (itemsError) throw itemsError;
+        })),
+      });
+      if (error) throw error;
+      const order = Array.isArray(orderRows) ? orderRows[0] : orderRows;
+      if (!order) throw new Error("Erreur lors de la création de la commande");
 
       // 3. Notifier la vendeuse par WhatsApp
       notifySellerWhatsApp({
