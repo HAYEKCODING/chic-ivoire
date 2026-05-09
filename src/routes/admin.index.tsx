@@ -200,7 +200,32 @@ function AdminDashboard() {
     setProducts((p) => p.filter((x) => x.id !== id));
   };
 
-  if (!authChecked) return (
+  // ---- CATEGORIES ----
+  const addCategory = async () => {
+    if (!newCategory.name.trim()) { toast.error("Le nom de la catégorie est obligatoire"); return; }
+    setSavingCategory(true);
+    const slug = (newCategory.slug || slugify(newCategory.name)).trim();
+    const { error } = await supabase.from("categories").insert({
+      name: newCategory.name.trim(),
+      slug,
+      image_url: newCategory.image_url || null,
+    });
+    setSavingCategory(false);
+    if (error) { toast.error(error.message); return; }
+    toast.success("Catégorie ajoutée ✓");
+    setNewCategory({ name: "", slug: "", image_url: "" });
+    loadCategories();
+  };
+
+  const deleteCategory = async (id: string, name: string) => {
+    if (!confirm(`Supprimer la catégorie "${name}" ? Les produits associés ne seront plus rattachés à aucune catégorie.`)) return;
+    const { error } = await supabase.from("categories").delete().eq("id", id);
+    if (error) { toast.error(error.message); return; }
+    toast.success("Catégorie supprimée");
+    setCategories((c) => c.filter((x) => x.id !== id));
+    loadProducts();
+  };
+
     <div className="flex min-h-[60vh] items-center justify-center">
       <div className="text-center">
         <div className="h-10 w-10 rounded-full border-4 border-primary border-t-transparent animate-spin mx-auto mb-3" />
