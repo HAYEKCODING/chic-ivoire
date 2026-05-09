@@ -66,6 +66,10 @@ function AdminDashboard() {
     stock: "0", featured: false, category_id: "", image_url: "",
   });
 
+  // Categories form state
+  const [newCategory, setNewCategory] = useState({ name: "", slug: "", image_url: "" });
+  const [savingCategory, setSavingCategory] = useState(false);
+
   useEffect(() => {
     (async () => {
       const { data: { session } } = await supabase.auth.getSession();
