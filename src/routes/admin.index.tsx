@@ -39,7 +39,7 @@ const STATUS_COLOR: Record<OrderStatus, string> = {
   annulee: "bg-red-100 text-red-700 border-red-200",
 };
 
-type AdminTab = "commandes" | "produits";
+type AdminTab = "commandes" | "produits" | "categories";
 
 function AdminDashboard() {
   const navigate = useNavigate();
