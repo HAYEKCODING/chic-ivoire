@@ -226,6 +226,7 @@ function AdminDashboard() {
     loadProducts();
   };
 
+  if (!authChecked) return (
     <div className="flex min-h-[60vh] items-center justify-center">
       <div className="text-center">
         <div className="h-10 w-10 rounded-full border-4 border-primary border-t-transparent animate-spin mx-auto mb-3" />
