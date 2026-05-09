@@ -584,6 +584,70 @@ function AdminDashboard() {
           )}
         </div>
       )}
+
+      {/* ===== CATÉGORIES ===== */}
+      {tab === "categories" && (
+        <div className="grid lg:grid-cols-2 gap-6">
+          {/* Add new category */}
+          <div className="rounded-xl border border-border bg-card p-5 shadow-soft">
+            <h2 className="font-display text-lg mb-4">Ajouter une catégorie</h2>
+            <div className="space-y-4">
+              <div>
+                <label className="text-sm font-semibold mb-1 block">Nom *</label>
+                <input value={newCategory.name}
+                  onChange={(e) => setNewCategory((c) => ({ ...c, name: e.target.value, slug: slugify(e.target.value) }))}
+                  placeholder="Ex: Robes"
+                  className="w-full rounded-lg border border-input bg-background px-3 py-2.5 text-sm" />
+              </div>
+              <div>
+                <label className="text-sm font-semibold mb-1 block">Slug (URL)</label>
+                <input value={newCategory.slug}
+                  onChange={(e) => setNewCategory((c) => ({ ...c, slug: e.target.value }))}
+                  placeholder="robes"
+                  className="w-full rounded-lg border border-input bg-background px-3 py-2.5 text-sm font-mono text-xs" />
+              </div>
+              <div>
+                <label className="text-sm font-semibold mb-1 block">Image (URL, optionnel)</label>
+                <input value={newCategory.image_url}
+                  onChange={(e) => setNewCategory((c) => ({ ...c, image_url: e.target.value }))}
+                  placeholder="https://..."
+                  className="w-full rounded-lg border border-input bg-background px-3 py-2.5 text-sm" />
+              </div>
+              <button onClick={addCategory} disabled={savingCategory}
+                className="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-primary text-primary-foreground py-3 text-sm font-semibold hover:opacity-90 transition disabled:opacity-50">
+                <Plus className="h-4 w-4" /> {savingCategory ? "Ajout…" : "Ajouter la catégorie"}
+              </button>
+            </div>
+          </div>
+
+          {/* Existing categories */}
+          <div className="rounded-xl border border-border bg-card p-5 shadow-soft">
+            <h2 className="font-display text-lg mb-4">Catégories existantes ({categories.length})</h2>
+            {categories.length === 0 ? (
+              <p className="text-sm text-muted-foreground text-center py-8">Aucune catégorie.</p>
+            ) : (
+              <ul className="space-y-2">
+                {categories.map((c) => {
+                  const count = products.filter((p) => p.category_id === c.id).length;
+                  return (
+                    <li key={c.id} className="flex items-center justify-between gap-3 rounded-lg border border-border p-3">
+                      <div className="min-w-0">
+                        <p className="font-medium text-foreground truncate">{c.name}</p>
+                        <p className="text-xs text-muted-foreground truncate">/{c.slug} · {count} produit(s)</p>
+                      </div>
+                      <button onClick={() => deleteCategory(c.id, c.name)}
+                        className="shrink-0 inline-flex items-center justify-center h-9 w-9 rounded-lg border border-red-200 text-red-500 hover:bg-red-50 transition"
+                        aria-label={`Supprimer ${c.name}`}>
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
