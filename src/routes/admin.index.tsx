@@ -39,7 +39,7 @@ const STATUS_COLOR: Record<OrderStatus, string> = {
   annulee: "bg-red-100 text-red-700 border-red-200",
 };
 
-type AdminTab = "commandes" | "produits";
+type AdminTab = "commandes" | "produits" | "categories";
 
 function AdminDashboard() {
   const navigate = useNavigate();
@@ -65,6 +65,10 @@ function AdminDashboard() {
     name: "", slug: "", price_xof: "", description: "",
     stock: "0", featured: false, category_id: "", image_url: "",
   });
+
+  // Categories form state
+  const [newCategory, setNewCategory] = useState({ name: "", slug: "", image_url: "" });
+  const [savingCategory, setSavingCategory] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -196,6 +200,32 @@ function AdminDashboard() {
     setProducts((p) => p.filter((x) => x.id !== id));
   };
 
+  // ---- CATEGORIES ----
+  const addCategory = async () => {
+    if (!newCategory.name.trim()) { toast.error("Le nom de la catégorie est obligatoire"); return; }
+    setSavingCategory(true);
+    const slug = (newCategory.slug || slugify(newCategory.name)).trim();
+    const { error } = await supabase.from("categories").insert({
+      name: newCategory.name.trim(),
+      slug,
+      image_url: newCategory.image_url || null,
+    });
+    setSavingCategory(false);
+    if (error) { toast.error(error.message); return; }
+    toast.success("Catégorie ajoutée ✓");
+    setNewCategory({ name: "", slug: "", image_url: "" });
+    loadCategories();
+  };
+
+  const deleteCategory = async (id: string, name: string) => {
+    if (!confirm(`Supprimer la catégorie "${name}" ? Les produits associés ne seront plus rattachés à aucune catégorie.`)) return;
+    const { error } = await supabase.from("categories").delete().eq("id", id);
+    if (error) { toast.error(error.message); return; }
+    toast.success("Catégorie supprimée");
+    setCategories((c) => c.filter((x) => x.id !== id));
+    loadProducts();
+  };
+
   if (!authChecked) return (
     <div className="flex min-h-[60vh] items-center justify-center">
       <div className="text-center">
@@ -229,19 +259,19 @@ function AdminDashboard() {
       <div className="flex items-center justify-between flex-wrap gap-3 mb-8">
         <div>
           <span className="text-xs uppercase tracking-[0.25em] text-gold font-semibold">Administration</span>
-          <h1 className="font-display text-3xl text-foreground mt-1">Tableau de bord</h1>
+          <h1 className="font-display text-2xl sm:text-3xl text-foreground mt-1">Tableau de bord</h1>
           <p className="text-sm text-muted-foreground">KGF BOUTIQUE — Espace vendeuse</p>
         </div>
-        <div className="flex gap-2">
-          <button onClick={() => { loadOrders(); loadProducts(); }}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-border px-4 py-2.5 text-sm hover:bg-accent transition">
+        <div className="flex gap-2 flex-wrap w-full sm:w-auto">
+          <button onClick={() => { loadOrders(); loadProducts(); loadCategories(); }}
+            className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 sm:px-4 py-2.5 text-xs sm:text-sm hover:bg-accent transition">
             <RefreshCw className="h-4 w-4" /> Actualiser
           </button>
-          <Link to="/" className="inline-flex items-center gap-1.5 rounded-lg border border-border px-4 py-2.5 text-sm hover:bg-accent transition">
+          <Link to="/" className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 sm:px-4 py-2.5 text-xs sm:text-sm hover:bg-accent transition">
             Boutique
           </Link>
           <button onClick={logout}
-            className="inline-flex items-center gap-1.5 rounded-lg bg-primary/10 text-primary px-4 py-2.5 text-sm hover:bg-primary/20 transition">
+            className="inline-flex items-center gap-1.5 rounded-lg bg-primary/10 text-primary px-3 sm:px-4 py-2.5 text-xs sm:text-sm hover:bg-primary/20 transition">
             <LogOut className="h-4 w-4" /> Déconnexion
           </button>
         </div>
@@ -264,11 +294,11 @@ function AdminDashboard() {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 mb-6 rounded-xl bg-muted p-1 w-fit">
-        {(["commandes", "produits"] as AdminTab[]).map((t) => (
+      <div className="flex gap-1 mb-6 rounded-xl bg-muted p-1 w-full sm:w-fit overflow-x-auto">
+        {(["commandes", "produits", "categories"] as AdminTab[]).map((t) => (
           <button key={t} onClick={() => setTab(t)}
-            className={`px-5 py-2 rounded-lg text-sm font-medium capitalize transition ${tab === t ? "bg-card shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"}`}>
-            {t === "commandes" ? `Commandes (${orders.length})` : `Produits (${products.length})`}
+            className={`px-3 sm:px-5 py-2 rounded-lg text-xs sm:text-sm font-medium capitalize transition whitespace-nowrap ${tab === t ? "bg-card shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"}`}>
+            {t === "commandes" ? `Commandes (${orders.length})` : t === "produits" ? `Produits (${products.length})` : `Catégories (${categories.length})`}
           </button>
         ))}
       </div>
@@ -552,6 +582,70 @@ function AdminDashboard() {
               <p>Aucun produit. Cliquez sur "Ajouter un produit" pour commencer.</p>
             </div>
           )}
+        </div>
+      )}
+
+      {/* ===== CATÉGORIES ===== */}
+      {tab === "categories" && (
+        <div className="grid lg:grid-cols-2 gap-6">
+          {/* Add new category */}
+          <div className="rounded-xl border border-border bg-card p-5 shadow-soft">
+            <h2 className="font-display text-lg mb-4">Ajouter une catégorie</h2>
+            <div className="space-y-4">
+              <div>
+                <label className="text-sm font-semibold mb-1 block">Nom *</label>
+                <input value={newCategory.name}
+                  onChange={(e) => setNewCategory((c) => ({ ...c, name: e.target.value, slug: slugify(e.target.value) }))}
+                  placeholder="Ex: Robes"
+                  className="w-full rounded-lg border border-input bg-background px-3 py-2.5 text-sm" />
+              </div>
+              <div>
+                <label className="text-sm font-semibold mb-1 block">Slug (URL)</label>
+                <input value={newCategory.slug}
+                  onChange={(e) => setNewCategory((c) => ({ ...c, slug: e.target.value }))}
+                  placeholder="robes"
+                  className="w-full rounded-lg border border-input bg-background px-3 py-2.5 text-sm font-mono text-xs" />
+              </div>
+              <div>
+                <label className="text-sm font-semibold mb-1 block">Image (URL, optionnel)</label>
+                <input value={newCategory.image_url}
+                  onChange={(e) => setNewCategory((c) => ({ ...c, image_url: e.target.value }))}
+                  placeholder="https://..."
+                  className="w-full rounded-lg border border-input bg-background px-3 py-2.5 text-sm" />
+              </div>
+              <button onClick={addCategory} disabled={savingCategory}
+                className="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-primary text-primary-foreground py-3 text-sm font-semibold hover:opacity-90 transition disabled:opacity-50">
+                <Plus className="h-4 w-4" /> {savingCategory ? "Ajout…" : "Ajouter la catégorie"}
+              </button>
+            </div>
+          </div>
+
+          {/* Existing categories */}
+          <div className="rounded-xl border border-border bg-card p-5 shadow-soft">
+            <h2 className="font-display text-lg mb-4">Catégories existantes ({categories.length})</h2>
+            {categories.length === 0 ? (
+              <p className="text-sm text-muted-foreground text-center py-8">Aucune catégorie.</p>
+            ) : (
+              <ul className="space-y-2">
+                {categories.map((c) => {
+                  const count = products.filter((p) => p.category_id === c.id).length;
+                  return (
+                    <li key={c.id} className="flex items-center justify-between gap-3 rounded-lg border border-border p-3">
+                      <div className="min-w-0">
+                        <p className="font-medium text-foreground truncate">{c.name}</p>
+                        <p className="text-xs text-muted-foreground truncate">/{c.slug} · {count} produit(s)</p>
+                      </div>
+                      <button onClick={() => deleteCategory(c.id, c.name)}
+                        className="shrink-0 inline-flex items-center justify-center h-9 w-9 rounded-lg border border-red-200 text-red-500 hover:bg-red-50 transition"
+                        aria-label={`Supprimer ${c.name}`}>
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+          </div>
         </div>
       )}
     </div>
