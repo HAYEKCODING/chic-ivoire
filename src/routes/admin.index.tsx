@@ -259,19 +259,19 @@ function AdminDashboard() {
       <div className="flex items-center justify-between flex-wrap gap-3 mb-8">
         <div>
           <span className="text-xs uppercase tracking-[0.25em] text-gold font-semibold">Administration</span>
-          <h1 className="font-display text-3xl text-foreground mt-1">Tableau de bord</h1>
+          <h1 className="font-display text-2xl sm:text-3xl text-foreground mt-1">Tableau de bord</h1>
           <p className="text-sm text-muted-foreground">KGF BOUTIQUE — Espace vendeuse</p>
         </div>
-        <div className="flex gap-2">
-          <button onClick={() => { loadOrders(); loadProducts(); }}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-border px-4 py-2.5 text-sm hover:bg-accent transition">
+        <div className="flex gap-2 flex-wrap w-full sm:w-auto">
+          <button onClick={() => { loadOrders(); loadProducts(); loadCategories(); }}
+            className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 sm:px-4 py-2.5 text-xs sm:text-sm hover:bg-accent transition">
             <RefreshCw className="h-4 w-4" /> Actualiser
           </button>
-          <Link to="/" className="inline-flex items-center gap-1.5 rounded-lg border border-border px-4 py-2.5 text-sm hover:bg-accent transition">
+          <Link to="/" className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 sm:px-4 py-2.5 text-xs sm:text-sm hover:bg-accent transition">
             Boutique
           </Link>
           <button onClick={logout}
-            className="inline-flex items-center gap-1.5 rounded-lg bg-primary/10 text-primary px-4 py-2.5 text-sm hover:bg-primary/20 transition">
+            className="inline-flex items-center gap-1.5 rounded-lg bg-primary/10 text-primary px-3 sm:px-4 py-2.5 text-xs sm:text-sm hover:bg-primary/20 transition">
             <LogOut className="h-4 w-4" /> Déconnexion
           </button>
         </div>
