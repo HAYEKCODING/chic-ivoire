@@ -294,11 +294,11 @@ function AdminDashboard() {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 mb-6 rounded-xl bg-muted p-1 w-fit">
-        {(["commandes", "produits"] as AdminTab[]).map((t) => (
+      <div className="flex gap-1 mb-6 rounded-xl bg-muted p-1 w-full sm:w-fit overflow-x-auto">
+        {(["commandes", "produits", "categories"] as AdminTab[]).map((t) => (
           <button key={t} onClick={() => setTab(t)}
-            className={`px-5 py-2 rounded-lg text-sm font-medium capitalize transition ${tab === t ? "bg-card shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"}`}>
-            {t === "commandes" ? `Commandes (${orders.length})` : `Produits (${products.length})`}
+            className={`px-3 sm:px-5 py-2 rounded-lg text-xs sm:text-sm font-medium capitalize transition whitespace-nowrap ${tab === t ? "bg-card shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"}`}>
+            {t === "commandes" ? `Commandes (${orders.length})` : t === "produits" ? `Produits (${products.length})` : `Catégories (${categories.length})`}
           </button>
         ))}
       </div>
