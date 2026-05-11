@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { ShoppingBag, Menu, X, MessageCircle } from "lucide-react";
+import { ShoppingBag, Menu, X, MessageCircle, Package } from "lucide-react";
 import { useCart } from "@/lib/cart";
 import { useState, useEffect } from "react";
 
@@ -73,6 +73,16 @@ export function Header() {
               >
                 <MessageCircle className="h-3.5 w-3.5" /> WhatsApp
               </a>
+
+              {/* Suivi commande */}
+              <Link
+                to="/suivi"
+                className="inline-flex items-center gap-1.5 rounded-full px-2.5 sm:px-3 h-9 hover:bg-accent transition-colors text-xs sm:text-sm font-medium"
+                aria-label="Suivre ma commande"
+              >
+                <Package className="h-4 w-4" />
+                <span className="hidden sm:inline">Suivi</span>
+              </Link>
 
               {/* Panier */}
               <Link
