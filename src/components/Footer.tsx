@@ -73,6 +73,14 @@ export function Footer() {
               <span className="text-primary mt-0.5">✓</span>
               Articles authentiques et de qualité
             </li>
+            <li className="pt-2">
+              <Link
+                to="/suivi"
+                className="inline-flex items-center gap-2 rounded-lg border border-primary/30 bg-primary/5 px-3 py-2 text-sm font-medium text-primary hover:bg-primary/10 transition"
+              >
+                📦 Suivre ma commande
+              </Link>
+            </li>
           </ul>
         </div>
 

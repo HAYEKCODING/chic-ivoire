@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SuiviRouteImport } from './routes/suivi'
 import { Route as PanierRouteImport } from './routes/panier'
 import { Route as CommandeRouteImport } from './routes/commande'
 import { Route as IndexRouteImport } from './routes/index'
@@ -18,6 +19,11 @@ import { Route as CategorieSlugRouteImport } from './routes/categorie.$slug'
 import { Route as AdminLoginRouteImport } from './routes/admin.login'
 import { Route as CommandeConfirmationIdRouteImport } from './routes/commande.confirmation.$id'
 
+const SuiviRoute = SuiviRouteImport.update({
+  id: '/suivi',
+  path: '/suivi',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PanierRoute = PanierRouteImport.update({
   id: '/panier',
   path: '/panier',
@@ -63,6 +69,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/commande': typeof CommandeRouteWithChildren
   '/panier': typeof PanierRoute
+  '/suivi': typeof SuiviRoute
   '/admin/login': typeof AdminLoginRoute
   '/categorie/$slug': typeof CategorieSlugRoute
   '/produit/$slug': typeof ProduitSlugRoute
@@ -73,6 +80,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/commande': typeof CommandeRouteWithChildren
   '/panier': typeof PanierRoute
+  '/suivi': typeof SuiviRoute
   '/admin/login': typeof AdminLoginRoute
   '/categorie/$slug': typeof CategorieSlugRoute
   '/produit/$slug': typeof ProduitSlugRoute
@@ -84,6 +92,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/commande': typeof CommandeRouteWithChildren
   '/panier': typeof PanierRoute
+  '/suivi': typeof SuiviRoute
   '/admin/login': typeof AdminLoginRoute
   '/categorie/$slug': typeof CategorieSlugRoute
   '/produit/$slug': typeof ProduitSlugRoute
@@ -96,6 +105,7 @@ export interface FileRouteTypes {
     | '/'
     | '/commande'
     | '/panier'
+    | '/suivi'
     | '/admin/login'
     | '/categorie/$slug'
     | '/produit/$slug'
@@ -106,6 +116,7 @@ export interface FileRouteTypes {
     | '/'
     | '/commande'
     | '/panier'
+    | '/suivi'
     | '/admin/login'
     | '/categorie/$slug'
     | '/produit/$slug'
@@ -116,6 +127,7 @@ export interface FileRouteTypes {
     | '/'
     | '/commande'
     | '/panier'
+    | '/suivi'
     | '/admin/login'
     | '/categorie/$slug'
     | '/produit/$slug'
@@ -127,6 +139,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   CommandeRoute: typeof CommandeRouteWithChildren
   PanierRoute: typeof PanierRoute
+  SuiviRoute: typeof SuiviRoute
   AdminLoginRoute: typeof AdminLoginRoute
   CategorieSlugRoute: typeof CategorieSlugRoute
   ProduitSlugRoute: typeof ProduitSlugRoute
@@ -135,6 +148,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/suivi': {
+      id: '/suivi'
+      path: '/suivi'
+      fullPath: '/suivi'
+      preLoaderRoute: typeof SuiviRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/panier': {
       id: '/panier'
       path: '/panier'
@@ -210,6 +230,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CommandeRoute: CommandeRouteWithChildren,
   PanierRoute: PanierRoute,
+  SuiviRoute: SuiviRoute,
   AdminLoginRoute: AdminLoginRoute,
   CategorieSlugRoute: CategorieSlugRoute,
   ProduitSlugRoute: ProduitSlugRoute,

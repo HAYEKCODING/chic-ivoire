@@ -223,6 +223,14 @@ export type Database = {
           order_number: number
         }[]
       }
+      get_order_status: {
+        Args: { p_order_number: number }
+        Returns: {
+          created_at: string
+          order_number: number
+          status: Database["public"]["Enums"]["order_status"]
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
