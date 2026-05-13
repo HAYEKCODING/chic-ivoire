@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import { consumePendingWhatsAppUrl, clearPendingWhatsAppUrl } from "@/lib/notifications";
 import { supabase } from "@/integrations/supabase/client";
 import { OrderStatusTimeline, OrderStatusBadge, type OrderStatus } from "@/components/OrderStatusTimeline";
+import { addOrderToHistory } from "@/lib/order-history";
 
 export const Route = createFileRoute("/commande/confirmation/$id")({ component: Confirm });
 
