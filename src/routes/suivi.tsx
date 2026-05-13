@@ -62,6 +62,32 @@ function SuiviPage() {
     loadAll();
   };
 
+  return (
+    <div className="mx-auto max-w-3xl px-4 py-10 sm:py-14">
+      <div className="flex items-start justify-between gap-4 mb-8">
+        <div className="flex items-center gap-3">
+          <div className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary shrink-0">
+            <PackageSearch className="h-6 w-6" />
+          </div>
+          <div>
+            <h1 className="font-display text-2xl sm:text-3xl text-foreground">
+              Mes commandes
+            </h1>
+            <p className="text-sm text-muted-foreground">
+              Vos commandes sont enregistrées automatiquement après validation.
+            </p>
+          </div>
+        </div>
+        <button
+          onClick={loadAll}
+          disabled={loading}
+          className="rounded-md border border-border p-2 hover:bg-accent transition disabled:opacity-50 shrink-0"
+          aria-label="Rafraîchir"
+        >
+          <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
+        </button>
+      </div>
+
       {/* Missing */}
       {missing.length > 0 && (
         <div className="mb-6 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm">
