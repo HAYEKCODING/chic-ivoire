@@ -2,8 +2,8 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { OrderStatusTimeline, OrderStatusBadge, type OrderStatus } from "@/components/OrderStatusTimeline";
-import { getOrderHistory, addOrderToHistory, removeOrderFromHistory } from "@/lib/order-history";
-import { PackageSearch, RefreshCw, Plus, Trash2, X } from "lucide-react";
+import { getOrderHistory, removeOrderFromHistory } from "@/lib/order-history";
+import { PackageSearch, RefreshCw, Trash2 } from "lucide-react";
 
 export const Route = createFileRoute("/suivi")({ component: SuiviPage });
 
