@@ -2,8 +2,8 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { OrderStatusTimeline, OrderStatusBadge, type OrderStatus } from "@/components/OrderStatusTimeline";
-import { getOrderHistory, addOrderToHistory, removeOrderFromHistory } from "@/lib/order-history";
-import { PackageSearch, RefreshCw, Plus, Trash2, X } from "lucide-react";
+import { getOrderHistory, removeOrderFromHistory } from "@/lib/order-history";
+import { PackageSearch, RefreshCw, Trash2 } from "lucide-react";
 
 export const Route = createFileRoute("/suivi")({ component: SuiviPage });
 
@@ -17,9 +17,8 @@ function SuiviPage() {
   const [orders, setOrders] = useState<OrderRow[]>([]);
   const [missing, setMissing] = useState<number[]>([]);
   const [loading, setLoading] = useState(true);
-  const [showAdd, setShowAdd] = useState(false);
-  const [num, setNum] = useState("");
-  const [addError, setAddError] = useState<string | null>(null);
+
+
 
   const loadAll = useCallback(async () => {
     setLoading(true);
@@ -58,32 +57,6 @@ function SuiviPage() {
     loadAll();
   }, [loadAll]);
 
-  const addOrder = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setAddError(null);
-    const n = parseInt(num.trim(), 10);
-    if (!n || n <= 0) {
-      setAddError("Numéro de commande invalide.");
-      return;
-    }
-    const { data, error } = await supabase.rpc("get_order_status", {
-      p_order_number: n,
-    });
-    if (error) {
-      setAddError("Erreur. Réessayez.");
-      return;
-    }
-    const row = Array.isArray(data) ? data[0] : data;
-    if (!row) {
-      setAddError(`Aucune commande #${n} trouvée.`);
-      return;
-    }
-    addOrderToHistory(n);
-    setNum("");
-    setShowAdd(false);
-    loadAll();
-  };
-
   const remove = (n: number) => {
     removeOrderFromHistory(n);
     loadAll();
@@ -101,7 +74,7 @@ function SuiviPage() {
               Mes commandes
             </h1>
             <p className="text-sm text-muted-foreground">
-              Historique et statut de vos commandes sur cet appareil.
+              Vos commandes sont enregistrées automatiquement après validation.
             </p>
           </div>
         </div>
@@ -113,58 +86,6 @@ function SuiviPage() {
         >
           <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
         </button>
-      </div>
-
-      {/* Add order */}
-      <div className="mb-6">
-        {!showAdd ? (
-          <button
-            onClick={() => setShowAdd(true)}
-            className="inline-flex items-center gap-2 text-sm rounded-lg border border-dashed border-border px-4 py-2.5 hover:bg-accent transition"
-          >
-            <Plus className="h-4 w-4" /> Ajouter une commande par numéro
-          </button>
-        ) : (
-          <form
-            onSubmit={addOrder}
-            className="rounded-xl border border-border bg-card p-4"
-          >
-            <div className="flex items-center justify-between mb-3">
-              <p className="text-sm font-medium">Ajouter une commande</p>
-              <button
-                type="button"
-                onClick={() => {
-                  setShowAdd(false);
-                  setAddError(null);
-                  setNum("");
-                }}
-                className="text-muted-foreground hover:text-foreground"
-              >
-                <X className="h-4 w-4" />
-              </button>
-            </div>
-            <div className="flex gap-2">
-              <input
-                type="number"
-                inputMode="numeric"
-                value={num}
-                onChange={(e) => setNum(e.target.value)}
-                placeholder="N° de commande (ex : 1024)"
-                className="flex-1 rounded-lg border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
-                autoFocus
-              />
-              <button
-                type="submit"
-                className="rounded-lg bg-primary text-primary-foreground px-4 py-2 text-sm font-medium hover:opacity-90"
-              >
-                Ajouter
-              </button>
-            </div>
-            {addError && (
-              <p className="mt-2 text-xs text-destructive">{addError}</p>
-            )}
-          </form>
-        )}
       </div>
 
       {/* Missing */}
