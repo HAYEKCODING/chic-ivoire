@@ -17,9 +17,8 @@ function SuiviPage() {
   const [orders, setOrders] = useState<OrderRow[]>([]);
   const [missing, setMissing] = useState<number[]>([]);
   const [loading, setLoading] = useState(true);
-  const [showAdd, setShowAdd] = useState(false);
-  const [num, setNum] = useState("");
-  const [addError, setAddError] = useState<string | null>(null);
+
+
 
   const loadAll = useCallback(async () => {
     setLoading(true);
