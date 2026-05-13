@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import { consumePendingWhatsAppUrl, clearPendingWhatsAppUrl } from "@/lib/notifications";
 import { supabase } from "@/integrations/supabase/client";
 import { OrderStatusTimeline, OrderStatusBadge, type OrderStatus } from "@/components/OrderStatusTimeline";
+import { addOrderToHistory } from "@/lib/order-history";
 
 export const Route = createFileRoute("/commande/confirmation/$id")({ component: Confirm });
 
@@ -25,9 +26,11 @@ function Confirm() {
 
   useEffect(() => {
     setWaUrl(consumePendingWhatsAppUrl());
+    const n = parseInt(id, 10);
+    if (n) addOrderToHistory(n);
     loadStatus();
     return () => clearPendingWhatsAppUrl();
-  }, [loadStatus]);
+  }, [loadStatus, id]);
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-20 text-center">
