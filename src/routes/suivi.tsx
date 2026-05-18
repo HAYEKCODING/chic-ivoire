@@ -1,9 +1,18 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { OrderStatusTimeline, OrderStatusBadge, type OrderStatus } from "@/components/OrderStatusTimeline";
-import { getOrderHistory, removeOrderFromHistory } from "@/lib/order-history";
-import { PackageSearch, RefreshCw, Trash2 } from "lucide-react";
+import {
+  OrderStatusTimeline,
+  OrderStatusBadge,
+  type OrderStatus,
+} from "@/components/OrderStatusTimeline";
+import {
+  getCustomerPhone,
+  saveCustomerPhone,
+  clearCustomerPhone,
+} from "@/lib/order-history";
+import { formatXOF } from "@/lib/format";
+import { PackageSearch, RefreshCw, Phone, Pencil } from "lucide-react";
 
 export const Route = createFileRoute("/suivi")({ component: SuiviPage });
 
@@ -11,109 +20,159 @@ type OrderRow = {
   order_number: number;
   status: OrderStatus;
   created_at: string;
+  total_xof: number;
+  city: string;
 };
 
 function SuiviPage() {
+  const [phone, setPhone] = useState("");
+  const [editing, setEditing] = useState(false);
+  const [input, setInput] = useState("");
   const [orders, setOrders] = useState<OrderRow[]>([]);
-  const [missing, setMissing] = useState<number[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [searched, setSearched] = useState(false);
+  const [error, setError] = useState("");
 
-
-
-  const loadAll = useCallback(async () => {
-    setLoading(true);
-    const history = getOrderHistory();
-    if (history.length === 0) {
-      setOrders([]);
-      setMissing([]);
-      setLoading(false);
+  const load = useCallback(async (p: string) => {
+    if (!p || p.replace(/\D/g, "").length < 8) {
+      setError("Numéro de téléphone invalide");
       return;
     }
-    const results = await Promise.all(
-      history.map(async (h) => {
-        const { data } = await supabase.rpc("get_order_status", {
-          p_order_number: h.order_number,
-        });
-        const row = Array.isArray(data) ? data[0] : data;
-        return { num: h.order_number, row: row as OrderRow | undefined };
-      }),
+    setLoading(true);
+    setError("");
+    const { data, error: err } = await supabase.rpc(
+      "get_orders_by_phone" as never,
+      { p_phone: p } as never,
     );
-    const found: OrderRow[] = [];
-    const notFound: number[] = [];
-    for (const r of results) {
-      if (r.row) found.push(r.row);
-      else notFound.push(r.num);
+    if (err) {
+      setError("Erreur lors du chargement. Réessayez.");
+      setOrders([]);
+    } else {
+      setOrders((data as OrderRow[]) || []);
     }
-    found.sort(
-      (a, b) =>
-        new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
-    );
-    setOrders(found);
-    setMissing(notFound);
+    setSearched(true);
     setLoading(false);
   }, []);
 
   useEffect(() => {
-    loadAll();
-  }, [loadAll]);
+    const saved = getCustomerPhone();
+    if (saved) {
+      setPhone(saved);
+      setInput(saved);
+      load(saved);
+    } else {
+      setEditing(true);
+    }
+  }, [load]);
 
-  const remove = (n: number) => {
-    removeOrderFromHistory(n);
-    loadAll();
+  const submitPhone = (e: React.FormEvent) => {
+    e.preventDefault();
+    const trimmed = input.trim();
+    if (trimmed.replace(/\D/g, "").length < 8) {
+      setError("Numéro de téléphone invalide (8 chiffres minimum)");
+      return;
+    }
+    saveCustomerPhone(trimmed);
+    setPhone(trimmed);
+    setEditing(false);
+    load(trimmed);
+  };
+
+  const changePhone = () => {
+    clearCustomerPhone();
+    setPhone("");
+    setInput("");
+    setOrders([]);
+    setSearched(false);
+    setEditing(true);
+    setError("");
   };
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-10 sm:py-14">
-      <div className="flex items-start justify-between gap-4 mb-8">
-        <div className="flex items-center gap-3">
+      <div className="mb-8">
+        <div className="flex items-center gap-3 mb-2">
           <div className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary shrink-0">
             <PackageSearch className="h-6 w-6" />
           </div>
           <div>
             <h1 className="font-display text-2xl sm:text-3xl text-foreground">
-              Mes commandes
+              Historique de mes commandes
             </h1>
             <p className="text-sm text-muted-foreground">
-              Vos commandes sont enregistrées automatiquement après validation.
+              Retrouvez toutes vos commandes liées à votre numéro de téléphone.
             </p>
           </div>
         </div>
-        <button
-          onClick={loadAll}
-          disabled={loading}
-          className="rounded-md border border-border p-2 hover:bg-accent transition disabled:opacity-50 shrink-0"
-          aria-label="Rafraîchir"
-        >
-          <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
-        </button>
       </div>
 
-      {/* Missing */}
-      {missing.length > 0 && (
-        <div className="mb-6 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm">
-          <p className="font-medium text-amber-900 mb-2">
-            Commandes introuvables
+      {/* Phone form */}
+      {editing ? (
+        <form
+          onSubmit={submitPhone}
+          className="rounded-xl border border-border bg-card p-5 sm:p-6 mb-6"
+        >
+          <label className="block text-sm font-medium text-foreground mb-2">
+            Votre numéro de téléphone
+          </label>
+          <p className="text-xs text-muted-foreground mb-3">
+            Saisissez le numéro utilisé lors de vos commandes (téléphone ou
+            WhatsApp).
           </p>
-          <ul className="space-y-1">
-            {missing.map((n) => (
-              <li
-                key={n}
-                className="flex items-center justify-between text-amber-800"
-              >
-                <span>#{n}</span>
-                <button
-                  onClick={() => remove(n)}
-                  className="text-xs underline hover:no-underline"
-                >
-                  Retirer
-                </button>
-              </li>
-            ))}
-          </ul>
+          <div className="flex gap-2">
+            <div className="relative flex-1">
+              <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <input
+                type="tel"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                placeholder="+225 07 XX XX XX XX"
+                className="w-full rounded-md border border-border bg-background pl-10 pr-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
+                autoFocus
+              />
+            </div>
+            <button
+              type="submit"
+              disabled={loading}
+              className="rounded-md bg-primary text-primary-foreground px-5 py-2.5 text-sm font-medium hover:opacity-90 disabled:opacity-60"
+            >
+              Rechercher
+            </button>
+          </div>
+          {error && (
+            <p className="mt-2 text-sm text-destructive">{error}</p>
+          )}
+        </form>
+      ) : (
+        <div className="flex flex-wrap items-center justify-between gap-3 mb-6 rounded-xl border border-border bg-muted/40 px-4 py-3">
+          <div className="flex items-center gap-2 text-sm">
+            <Phone className="h-4 w-4 text-muted-foreground" />
+            <span className="text-muted-foreground">Téléphone :</span>
+            <span className="font-medium text-foreground">{phone}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => load(phone)}
+              disabled={loading}
+              className="inline-flex items-center gap-1.5 rounded-md border border-border px-3 py-1.5 text-xs hover:bg-accent transition disabled:opacity-50"
+            >
+              <RefreshCw
+                className={`h-3.5 w-3.5 ${loading ? "animate-spin" : ""}`}
+              />
+              Rafraîchir
+            </button>
+            <button
+              onClick={changePhone}
+              className="inline-flex items-center gap-1.5 rounded-md border border-border px-3 py-1.5 text-xs hover:bg-accent transition"
+            >
+              <Pencil className="h-3.5 w-3.5" />
+              Changer
+            </button>
+          </div>
         </div>
       )}
 
-      {/* Orders */}
+      {/* Results */}
       {loading ? (
         <div className="space-y-3">
           {[1, 2].map((i) => (
@@ -123,14 +182,15 @@ function SuiviPage() {
             />
           ))}
         </div>
-      ) : orders.length === 0 && missing.length === 0 ? (
+      ) : searched && orders.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-border p-10 text-center">
           <PackageSearch className="h-10 w-10 mx-auto text-muted-foreground mb-3" />
           <p className="font-medium text-foreground">
-            Aucune commande pour l'instant
+            Aucune commande trouvée
           </p>
           <p className="text-sm text-muted-foreground mt-1">
-            Vos commandes apparaîtront ici automatiquement après validation.
+            Aucune commande n'est associée à ce numéro. Vérifiez le numéro
+            saisi ou passez votre première commande.
           </p>
           <Link
             to="/"
@@ -146,7 +206,7 @@ function SuiviPage() {
               key={o.order_number}
               className="rounded-xl border border-border bg-card p-4 sm:p-5"
             >
-              <div className="flex items-start justify-between gap-3 mb-4">
+              <div className="flex items-start justify-between gap-3 mb-4 flex-wrap">
                 <div>
                   <p className="text-xs text-muted-foreground">Commande</p>
                   <p className="font-display text-lg sm:text-xl text-foreground">
@@ -158,18 +218,14 @@ function SuiviPage() {
                       month: "long",
                       year: "numeric",
                     })}
+                    {o.city ? ` · ${o.city}` : ""}
                   </p>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex flex-col items-end gap-2">
                   <OrderStatusBadge status={o.status} />
-                  <button
-                    onClick={() => remove(o.order_number)}
-                    className="text-muted-foreground hover:text-destructive p-1.5 rounded-md hover:bg-accent transition"
-                    aria-label="Retirer de l'historique"
-                    title="Retirer de l'historique"
-                  >
-                    <Trash2 className="h-3.5 w-3.5" />
-                  </button>
+                  <p className="text-sm font-semibold text-foreground">
+                    {formatXOF(o.total_xof)}
+                  </p>
                 </div>
               </div>
               <OrderStatusTimeline status={o.status} />
