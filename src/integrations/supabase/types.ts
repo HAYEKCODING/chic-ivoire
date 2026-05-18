@@ -231,6 +231,16 @@ export type Database = {
           status: Database["public"]["Enums"]["order_status"]
         }[]
       }
+      get_orders_by_phone: {
+        Args: { p_phone: string }
+        Returns: {
+          city: string
+          created_at: string
+          order_number: number
+          status: Database["public"]["Enums"]["order_status"]
+          total_xof: number
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]

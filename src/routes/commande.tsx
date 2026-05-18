@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { formatXOF } from "@/lib/format";
 import { toast } from "sonner";
 import { notifySellerWhatsApp } from "@/lib/notifications";
+import { saveCustomerPhone } from "@/lib/order-history";
 import { resolveImage } from "@/lib/images";
 import { ShieldCheck, Truck } from "lucide-react";
 
@@ -161,6 +162,7 @@ function CheckoutPage() {
 
       // 4. Vider le panier et rediriger
       cart.clear();
+      saveCustomerPhone(result.data.phone);
       toast.success("Commande passée avec succès !");
       navigate({
         to: "/commande/confirmation/$id",
