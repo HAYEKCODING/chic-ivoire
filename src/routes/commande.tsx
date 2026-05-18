@@ -162,6 +162,7 @@ function CheckoutPage() {
 
       // 4. Vider le panier et rediriger
       cart.clear();
+      saveCustomerPhone(result.data.phone);
       toast.success("Commande passée avec succès !");
       navigate({
         to: "/commande/confirmation/$id",
